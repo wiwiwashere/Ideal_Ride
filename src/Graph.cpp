@@ -20,12 +20,12 @@ struct QueueNode {
 
 void Graph::addRide(const string& name) {
     rides.push_back(name);
-    adjList[name] = {};
+    adjMatrix.push_back(vector<int>());
 }
 
-void Graph::addPath(const string& from, const string& to, double distance) {
-    adjList[from].emplace_back(to, distance);
-    adjList[to].emplace_back(from, distance);
+void Graph::addPath(const int from, const int to, double distance_min) {
+    adjMatrix[from][to] = distance_min;
+    adjMatrix[to][from] = distance_min;
 }
 
 void Graph::setWaitTime(const string& ride, int minutes) {
@@ -35,19 +35,6 @@ void Graph::setWaitTime(const string& ride, int minutes) {
 const vector<string> Graph::getRides() const
 {
     return rides;
-}
-
-void Graph::loadData() {
-    
-    // Connect rides with walking paths (minutes needed to walk from one to another)
-    addPath("Harry Potter", "Hippogriff", 150);
-    addPath("Harry Potter", "Gringotts", 200);
-    addPath("Gringotts", "Transformers",200);
-    addPath("Jurassic Park", "Transformers", 300);
-    addPath("Transformers", "The Mummy", 100);
-    
-    // Load wait times
-    loadWaitTimes("Rides.csv");
 }
 
 void Graph::loadWaitTimes(const string& filename) {
@@ -80,39 +67,4 @@ void Graph::loadWaitTimes(const string& filename) {
     }
 
     file.close();
-}
-
-vector<string> Graph::Dijkstra(const string& start, const string& end) {
-    
-    using QueueNode = pair<double, pair<string, vector<string>>>;
-    
-    priority_queue<QueueNode, vector<QueueNode>, greater<>> pq;
-    map<string, double> dist;
-    
-    for (const auto& ride : rides) {
-        dist[ride] = numeric_limits<double>::max();
-    }
-    
-    pq.push({static_cast<const double&>(waitTimes[start]), {start, {start}}});
-    dist[start] = waitTimes[start];
-    
-    while (!pq.empty()) {
-        auto [currentDist, node] = pq.top();
-        auto [current, path] = node;
-        pq.pop();
-        
-        if (current == end) return path;
-        
-        for (auto& [neighbor, distance] : adjList[current]) {
-            double newDist = currentDist + distance + waitTimes[neighbor];
-            if (newDist < dist[neighbor]) {
-                dist[neighbor] = newDist;
-                vector<string> newPath = path;
-                newPath.push_back(neighbor);
-                pq.push({newDist, {neighbor, newPath}});
-            }
-        }
-    }
-    
-    return {};
 }

@@ -4,7 +4,7 @@
 
 int main() {
     Graph universal;
-    universal.loadData();
+    universal.loadWaitTimes("Rides.csv");
     //universal.loadWaitTimes("Rides.csv");
     
     cout << "Welcome to Universal Studios Ride Planner\n";
@@ -33,16 +33,16 @@ int main() {
     cout << "You selected: \n";
     for (auto ri : selections)
     {
-        cout << rides[ri] << endl;
+        cout << rides[ri-1] << endl;
     }
-    
-    auto path = universal.Dijkstra("Harry Potter", "Transformers");
-    
+
+    /*
     cout << "Optimal path:\n";
     for (size_t i = 0; i < path.size(); ++i) {
         cout << (i+1) << ". " << path[i];
         if (i != path.size()-1) cout << " -> ";
     }
+    */
     
     cout << "\n\nTotal walking distance + wait times optimized!\n";
     return 0;
