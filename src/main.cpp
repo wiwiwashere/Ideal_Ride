@@ -1,41 +1,156 @@
 #include "Graph.h"
-#include <sstream>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
+#include <limits>
+#include <cstdlib>
 #include "MST.h"
+#include <curl/curl.h>
+#include <nlohmann/json.hpp>
+//using namespace std;
+using json = nlohmann::json;
+
+//callback for libcurl to write response into a string
+static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+    auto* s = static_cast<std::string*>(userp);
+    s->append(static_cast<char*>(contents), size * nmemb);
+    return size * nmemb;
+}
 
 int main() {
+
+    const std::string api_key = "AIzaSyAvzsmQlNkwI8h9bSLmb3lqO0ygcY0XtJE";
+
     Graph universal;
-    universal.loadWaitTimes("Rides.csv");
-    //universal.loadWaitTimes("Rides.csv");
-    
-    cout << "Welcome to Universal Studios Ride Planner\n";
-    cout << "============================\n\n";
 
-    cout << "Here's a list of rides at Universal Studios\n";
-    vector<string> rides = universal.getRides();
+    std::cout << "Welcome to Universal Studios Ride Planner\n";
+    std::cout << "============================\n\n";
 
-    for (int i = 0; i < rides.size(); i++)
-    {
-        cout << (i+1) << ": " << rides[i] << endl;
+    //load rides.csv
+    universal.loadData("Rides.csv");
+    std::vector<Ride> ride = universal.getRides();
+    auto k = ride.size();
+    if (k == 0) {
+        std::cerr << "No rides found in CSV.\n";
+        return 1;
     }
 
-    cout << "Please give your selection of rides separated by space!\n" ;
+    std::cout << "Here's a list of rides at Universal Studios\n";
 
-    string line;
-    getline(cin, line);//read in whole line
+    for (size_t i = 0; i < ride.size(); i++)
+    {
+        std::cout << (i+1) << ": " << ride[i].name << std::endl;
+    }
 
-    istringstream iss(line);
-    vector<int> selections;
-    string x;
+    std::cout << "Please give your selection of rides separated by space!\n" ;
+
+    std::string line;
+    std::getline(std::cin, line);//read in whole line
+
+    std::istringstream iss(line);
+    std::vector<int> selections;
+    std::string x;
     while (iss >> x) {//extract until EOF
         selections.push_back(stoi(x));
     }
 
-    cout << "You selected: \n";
+    std::cout << "You selected: \n";
     for (auto ri : selections)
     {
-        cout << rides[ri-1] << endl;
+        std::cout << ride[ri-1].name << std::endl;
     }
+
+    //build selectedRides vector
+    std::vector<Ride> sel;
+    for (int idx: selections)
+    {
+        if (idx >= 1 && idx <= static_cast<int>(ride.size()))
+        {
+            sel.push_back(ride[idx-1]);
+        }
+    }
+    int s = sel.size();
+    if (s < 2) {
+        std::cerr << "Need at least two rides to build a matrix.\n";
+        return 1;
+    }
+
+    //perform HTTP GET with libcurl
+    CURL* curl = curl_easy_init();
+    std::string origins, destinations;
+    std::string response;
+    for (int i = 0; i < s; i++) {
+        //eg "28.4721,-81.4625"
+        std::string coord = sel[i].coord;
+        //URL‑escape it:
+        char* esc = curl_easy_escape(curl, coord.c_str(), 0);
+        origins += esc;
+        destinations += esc;
+        curl_free(esc);
+        if (i+1 < s) {
+            origins += "|";
+            destinations += "|";
+        }
+    }
+
+    //build the full URL
+    std::ostringstream url;
+    url << "https://maps.googleapis.com/maps/api/distancematrix/json"
+        << "?mode=walking"
+        << "&origins="      << origins
+        << "&destinations=" << destinations
+        << "&key="          << api_key;
+
+    //perform HTTP GET ---
+    std::string resp;
+    curl_easy_setopt(curl, CURLOPT_URL, url.str().c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &resp);
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        std::cerr << "curl error: " << curl_easy_strerror(res) << "\n";
+        return 1;
+    }
+    curl_easy_cleanup(curl);
+
+    //parse JSON
+    auto root = json::parse(resp);
+    if (root["status"] != "OK") {
+        std::cerr << "API error: " << root["status"] << "\n";
+        return 1;
+    }
+
+    //extract the s*s matrix of walking times (in seconds)
+    std::vector<std::vector<int>> matrix(s, std::vector<int>(s, 0));
+    for (int i = 0; i < s; i++) {
+        auto& elements = root["rows"][i]["elements"];
+        for (int j = 0; j < s; j++) {
+            if (elements[j]["status"] == "OK")
+            {
+                int seconddd = elements[j]["duration"]["value"];
+                matrix[i][j] = seconddd/60.0;
+            }
+            else
+            {
+                matrix[i][j] = INT_MAX;  //unreachable
+            }
+        }
+    }
+
+    //print MST matrix
+    std::cout << "Distance matrix (minutes):\n";
+    for (int i = 0; i < s; i++) {
+        for (int j = 0; j < s; j++) {
+            std::cout << matrix[i][j] << (j+1<s ? "," : "");
+        }
+        std::cout << "\n";
+    }
+
+    //guys if you see the value in the matrix being a ridiculousilly big number, that means that it's unreachable
+    //if you removed the seconddd/60.0 and just do seconddd then the matrix will be in seconds for instead;
+    //I put it in minutes cuz I want to make the weight not distinct to avoid Prim's and Krustal's from building the same MST (so they could have different ordering)
 
     /*
     cout << "Optimal path:\n";
@@ -44,24 +159,8 @@ int main() {
         if (i != path.size()-1) cout << " -> ";
     }
     */
-    
-    cout << "\n\nTotal walking distance + wait times optimized!\n";
 
-
-    //example: user selected rides (we index them 0..k-1)
-    vector<string> rides_example = {
-        "Harry Potter", "Transformers", "Jurassic Park", "Mummy Ride"
-    };
-    int k = rides.size();
-    int startIdx = 0; // e.g. "Harry Potter"
-
-    //example distance matrix (symmetric, zeros on diagonal)
-    Matrix mat = {
-        {0, 5, 10, 8},
-        {5, 0, 3, 7},
-        {10,3, 0, 9},
-        {8, 7, 9, 0}
-    };
+    /*
 
     //compute MSTs
     auto primTree    = primMST(mat, startIdx);
@@ -87,7 +186,9 @@ int main() {
 
     return 0;
 
+    */
 
+    std::cout << "\n\nTotal walking distance + wait times optimized!\n";
 
 
     return 0;
