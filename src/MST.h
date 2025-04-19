@@ -13,9 +13,14 @@ using Matrix = vector<vector<int>>;
 //returns an adjacency list of the MST
 vector<vector<int>> primMST(const Matrix& mat, int start) {
     int k = mat.size();
+    vector<vector<int>> k;
 
+    for(int i = 0; i < k^2; i++)
+    {
+
+    }
     //bild adjacency list for MST
-    vector<vector<int>> mst(k);
+    
     return mst;
 }
 
