@@ -1,70 +1,83 @@
 #include "Graph.h"
-#include <queue>
-#include <limits>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <unordered_map>
-using namespace std;
+#include <string>
+#include <nlohmann/json.hpp>
+//using namespace std;
+using json = nlohmann::json;
 
-struct QueueNode {
-    int cost;
-    string id;
-    vector<std::string> path;
-    
-    bool operator>(const QueueNode& other) const {
-        return cost > other.cost;
-    }
-};
+// void Graph::addPath(const int from, const int to, double distance_min) {
+//     adjMatrix[from][to] = distance_min;
+//     adjMatrix[to][from] = distance_min;
+// }
 
-void Graph::addRide(const string& name) {
-    rides.push_back(name);
-    adjMatrix.push_back(vector<int>());
+// helper to trim whitespace from both ends
+static void trim(std::string &s) {
+    // left trim
+    s.erase(s.begin(),
+            std::find_if(s.begin(), s.end(),
+                         [](unsigned char ch){ return !std::isspace(ch); }));
+    // right trim
+    s.erase(std::find_if(s.rbegin(), s.rend(),
+                         [](unsigned char ch){ return !std::isspace(ch); })
+                .base(),
+            s.end());
 }
 
-void Graph::addPath(const int from, const int to, double distance_min) {
-    adjMatrix[from][to] = distance_min;
-    adjMatrix[to][from] = distance_min;
-}
-
-void Graph::setWaitTime(const string& ride, int minutes) {
-    waitTimes[ride] = minutes;
-}
-
-const vector<string> Graph::getRides() const
+const std::vector<Ride> Graph::getRides() const
 {
     return rides;
 }
 
-void Graph::loadWaitTimes(const string& filename) {
-    ifstream file(filename);
+void Graph::loadData(const std::string& filename) {
+
+    std::cout << "Loading data..." << std::endl;
+    std::ifstream file(filename);
     if (!file.is_open()) {
-        throw runtime_error("Could not open CSV file");
+        throw std::runtime_error("Cannot open " + filename);
     }
 
-    string line;
+    std::string line;
 
-    //1) Skip header
+    // skip header
     getline(file, line);
 
-    //2) Read each line
     while (getline(file, line)) {
-        stringstream ss(line);
-        string number, park, ride_name, avg_wait, type, source;
+        std::stringstream ss(line);
+        std::string token;
+        std::vector<std::string> f;
+        //split on commas
+        while (getline(ss, token, ',')) {
+            f.push_back(token);
+        }
+        if (f.size() < 7) continue;
+        //sanity check
 
-        // Read comma‐separated fields
-        getline(ss, number, ',');
-        getline(ss, park, ',');
-        getline(ss, ride_name, ',');
-        getline(ss, avg_wait, ',');
+        std::string rideType = f[3];
+        if (rideType != "yes") continue;
 
-        int weight = stoi(avg_wait);
+        std::string rideName = f[2];
+        // 1) trim the wait-time field
+        std::string waitStr = f[4];
+        trim(waitStr);
 
-        // Add vertices and wait
-        addRide(ride_name);
-        setWaitTime(ride_name, weight);
+        // 2) parse safely
+        int wait = 0;
+        try {
+            if (!waitStr.empty())
+                wait = std::stoi(waitStr);
+        } catch (std::exception &e) {
+            std::cerr << "Warning: could not parse wait time '"
+                      << waitStr << "'; defaulting to 0\n";
+        }
+        std::string lat = f[5];
+        std::string lng = f[6];
+        rides.push_back({ rideName, lat + "," + lng, wait });
     }
+
+    std::cout << "Loaded " << rides.size() << " available rides" << std::endl;
 
     file.close();
 }

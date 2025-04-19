@@ -6,22 +6,22 @@
 #define MST_H
 
 #include <bits/stdc++.h>
-using namespace std;
-using Matrix = vector<vector<int>>;
+//using namespace std;
+using Matrix = std::vector<std::vector<int>>;
 
 //prim’s MST on adjacency matrix
 //returns an adjacency list of the MST
-vector<vector<int>> primMST(const Matrix& mat, int start) {
+std::vector<std::vector<int>> primMST(const Matrix& mat, int start) {
     int k = mat.size();
 
     //bild adjacency list for MST
-    vector<vector<int>> mst(k);
+    std::vector<std::vector<int>> mst(k);
     return mst;
 }
 
 //union‑Find for Kruskal’s ---
 struct DSU {
-    vector<int> p, r;
+    std::vector<int> p, r;
     DSU(int n) : p(n), r(n, 0)
     {
         iota(p.begin(), p.end(), 0);
@@ -33,7 +33,7 @@ struct DSU {
     bool unite(int a, int b) {
         a = find(a); b = find(b);
         if (a == b) return false;
-        if (r[a] < r[b]) swap(a,b);
+        if (r[a] < r[b]) std::swap(a,b);
         p[b] = a;
         if (r[a] == r[b]) r[a]++;
         return true;
@@ -41,16 +41,16 @@ struct DSU {
 };
 
 //kruskal’s MST on adjacency matrix
-vector<vector<int>> kruskalMST(const Matrix& mat) {
+std::vector<std::vector<int>> kruskalMST(const Matrix& mat) {
     int k = mat.size();
 
-    vector<vector<int>> mst(k);
+    std::vector<std::vector<int>> mst(k);
 
     return mst;
 }
 
 //pre‑order DFS to produce a visit order
-void dfsOrder(int u, int p, const vector<vector<int>>& mst, vector<int>& order) {
+void dfsOrder(int u, int p, const std::vector<std::vector<int>>& mst, std::vector<int>& order) {
     order.push_back(u);
     for (int v : mst[u]) {
         if (v == p) continue;
