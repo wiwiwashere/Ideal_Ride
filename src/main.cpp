@@ -138,6 +138,7 @@ int main() {
             {
                 int seconddd = elements[j]["duration"]["value"];
                 matrix[i][j] = seconddd/60.0;
+                selectionGraphforMST.addEdge(i, j, seconddd/60.0); // WINNIE PLEASE CHECK LET ME KNOW IF THIS IS WHERE YOU MAKE THE GRAPH PLSSSSSS-----------------------
             }
             else
             {
