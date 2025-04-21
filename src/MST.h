@@ -13,7 +13,7 @@ using Matrix = std::vector<std::vector<int>>;
 //returns an adjacency list of the MST
 std::vector<std::vector<int>> primMST(const Matrix& mat, int start) {
     int k = mat.size();
-    vector<vector<int>> k;
+    std::vector<std::vector<int>> k;
 
     for(int i = 0; i < k^2; i++)
     {

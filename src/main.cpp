@@ -23,7 +23,7 @@ int main() {
 
     const std::string api_key = "AIzaSyAvzsmQlNkwI8h9bSLmb3lqO0ygcY0XtJE";
 
-    Graph universal;
+    Graph universal(0);
 
     std::cout << "Welcome to Universal Studios Ride Planner\n";
     std::cout << "============================\n\n";
@@ -122,7 +122,14 @@ int main() {
         return 1;
     }
 
+    Graph selectionGraphforMST(s); //makes a new graph with the size of the number of selections
+
+    //
     //extract the s*s matrix of walking times (in seconds)
+    //when you are makign the vertex here, i dont' rlly understadn how you do it, but just graph has a function called add edge. 
+    //just adge edge with (from, to, weight)
+    //this will buidlt he graph here. 
+
     std::vector<std::vector<int>> matrix(s, std::vector<int>(s, 0));
     for (int i = 0; i < s; i++) {
         auto& elements = root["rows"][i]["elements"];
@@ -139,54 +146,52 @@ int main() {
         }
     }
 
+
+
     //print MST matrix
-    std::cout << "Distance matrix (minutes):\n";
-    for (int i = 0; i < s; i++) {
-        for (int j = 0; j < s; j++) {
-            std::cout << matrix[i][j] << (j+1<s ? "," : "");
-        }
-        std::cout << "\n";
-    }
+    // std::cout << "Distance matrix (minutes):\n";
+    // for (int i = 0; i < s; i++) {
+    //     for (int j = 0; j < s; j++) {
+    //         std::cout << matrix[i][j] << (j+1<s ? "," : "");
+    //     }
+    //     std::cout << "\n";
+    // }
 
-    //guys if you see the value in the matrix being a ridiculousilly big number, that means that it's unreachable
-    //if you removed the seconddd/60.0 and just do seconddd then the matrix will be in seconds for instead;
-    //I put it in minutes cuz I want to make the weight not distinct to avoid Prim's and Krustal's from building the same MST (so they could have different ordering)
 
-    /*
-    cout << "Optimal path:\n";
-    for (size_t i = 0; i < path.size(); ++i) {
-        cout << (i+1) << ". " << path[i];
-        if (i != path.size()-1) cout << " -> ";
-    }
-    */
 
-    /*
+    // std::vector<int> D(numNodes); // Distance array -- num of nodes basicallt will eaul num of rides that user engtered 
+    // std::vector<int> parent(numNodes); // Predecessor array
+    
+    // int startVertex = 0;
+    
+    // std::cout << "Running Prim's algorithm starting from vertex " << startVertex << std::endl;
+    // std::vector<std::vector<int>> mstEdges =  runPrimAlgorithm(g, startVertex, D, parent); //g here has to be the selection grpah i made above
+    
+    // //print ride to ride distances
+    // std::cout << "\nMinimum Spanning Tree:" << std::endl;
+    // int lastVertex; 
+    // for (int i = 0; i < numNodes; i++) {
+    //     if (i != startVertex && D[i] != INFINITY) {
+    //         std::cout << "Edge: " << parent[i] << " -> " << i << " Weight: " << D[i] << std::endl;
+    //     }
+    //     lastVertex = i;
+    // }
 
-    //compute MSTs
-    auto primTree    = primMST(mat, startIdx);
-    auto kruskalTree = kruskalMST(mat);
+    // std::cout << "\nTotal trip distance: ";
+    // int totalWeight = 0;
+    // for (int i = 0; i < numNodes; i++) {
+    //     if (i != startVertex && D[i] != INFINITY) {
+    //         totalWeight += D[i];
+    //     }
+    // }
+    
+    // std::cout << totalWeight << std::endl;
+    // std::vector<int> correctPathOrder; 
+    // //DFS
+    //call getMSTTraversalOrder() with correctPathOrder; 
+    //traverse the vector u get back from this
 
-    //get visit orders
-    vector<int> orderPrim, orderKruskal;
-    dfsOrder(startIdx, -1, primTree,    orderPrim);
-    dfsOrder(startIdx, -1, kruskalTree, orderKruskal);
 
-    // Print results
-    cout << "Prim's MST visit order:\n";
-    for (int idx : orderPrim)
-    {
-        cout << " - " << rides_example[idx] << "\n";
-    }
-
-    cout << "\nKruskal's MST visit order:\n";
-    for (int idx : orderKruskal)
-    {
-        cout << " - " << rides_example[idx] << "\n";
-    }
-
-    return 0;
-
-    */
 
     std::cout << "\n\nTotal walking distance + wait times optimized!\n";
 
