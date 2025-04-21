@@ -24,7 +24,10 @@ private:
     std::vector<std::vector<int>> adjMatrix; // Adjacency matrix
     std::vector<int> visitedNodes; // To mark nodes as visited/unvisited
 
-
+    const int VISITED = 1;
+    const int UNVISITED = 0;
+    const int INFINITY = std::numeric_limits<int>::max();
+    
 public:
     //void addRide(const std::string& name);
     //void addRide(const string& name, double x, double y);
