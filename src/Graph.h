@@ -2,10 +2,14 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include <limits>
+#include <curl/curl.h>
+#include <nlohmann/json.hpp>
 #include <functional>
-//using namespace std;
+
+using json = nlohmann::json;
 
 struct Ride {
     std::string name;
@@ -19,6 +23,7 @@ private:
     //map data type: ride_name, list of rides it connects to
     //sparse graph, theme park typically have relatively few connections per ride
     //std::vector<std::vector<int>> adjMatrix;
+    std::map<std::string, std::vector<Ride>> ThemeParks;
     std::vector<Ride> rides;
     int nodeCount;
     std::vector<std::vector<int>> adjMatrix; // Adjacency matrix
@@ -26,26 +31,19 @@ private:
 
     const int VISITED = 1;
     const int UNVISITED = 0;
-    const int INFINITY = std::numeric_limits<int>::max();
+    const int INF = std::numeric_limits<int>::max();
     
 public:
-    //void addRide(const std::string& name);
-    //void addRide(const string& name, double x, double y);
-    //void addPath(const int from, const int to, double distance_min);
-    //void setWaitTime(const std::string& ride, int minutes);
-    //const auto& getAdjacencyList() const;
     const std::vector<Ride> getRides() const;
+    const std::map<std::string, std::vector<Ride>> getThemeParks() const;
     void loadData(const std::string& filename);
-    Graph(int n) : nodeCount(n) {
-        // Initialize adjacency matrix with INFINITY (no edge)
-        adjMatrix.resize(n, std::vector<int>(n, INFINITY));
-        
-        // Set diagonal to 0 (distance to self is 0)
-        for (int i = 0; i < n; i++) {
-            adjMatrix[i][i] = 0;
-        }
-        
-        visitedNodes.resize(n, UNVISITED);
+    Graph() : nodeCount(0) {}
+    void initEmpty(int n);
+
+    void init(const std::vector<Ride>& selectedRides)
+    {
+        rides = selectedRides;
+        initEmpty(selectedRides.size());
     }
 
     void addEdge(int u, int v, int weight) {
@@ -57,27 +55,14 @@ public:
         return this->nodeCount;
     }
 
-    int edgeCount() const {
-        int count = 0;
-        for (int i = 0; i < nodeCount; i++) {
-            for (int j = i + 1; j < nodeCount; j++) {
-                if (adjMatrix[i][j] != INFINITY) {
-                    count++;
-                }
-            }
-        }
-        return count;
+    const std::vector<std::vector<int>>& getAdjMatrix() const
+    {
+        return this->adjMatrix;
     }
 
-    std::vector<int> neighbors(int v) const {
-        std::vector<int> result;
-        for (int i = 0; i < nodeCount; i++) {
-            if (adjMatrix[v][i] != INFINITY && v != i) {
-                result.push_back(i);
-            }
-        }
-        return result;
-    }
+    int edgeCount() const;
+
+    std::vector<int> neighbors(int v) const;
 
     int weight(int u, int v) const {
         return adjMatrix[u][v];
@@ -90,4 +75,13 @@ public:
     int getValue(int v) const {
         return visitedNodes[v];
     }
+
+    //callback for libcurl to write response into a string
+    static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
+        auto* s = static_cast<std::string*>(userp);
+        s->append(static_cast<char*>(contents), size * nmemb);
+        return size * nmemb;
+    }
+
+    void buildGraphFromAPI(std::string api_key);
 };

@@ -1,4 +1,4 @@
-#include <Graph.h>
+#include "Graph.h"
 #include <queue>
 #include <vector>
 #include <iostream>
@@ -8,7 +8,7 @@ class Prim {
 private:
     const int VISITED = 1;
     const int UNVISITED = 0;
-    const int INFINITY = std::numeric_limits<int>::max();
+    const int INF = std::numeric_limits<int>::max();
     
     // Helper struct for the priority queue
     struct DVPair {
@@ -27,7 +27,7 @@ public:
     // makes the Minimum Spanning Tree (MST) starting from the given vertex
     std::vector<std::vector<int>> buildMST(Graph& graph, int start) {
         int k = graph.getNodeCount();
-        std::vector<int> distance(k, INFINITY);
+        std::vector<int> distance(k, INF);
         std::vector<int> parent(k, -1);
         
         return runPrimAlgorithm(graph, start, distance, parent);
@@ -58,7 +58,7 @@ public:
         return order;
     }
     
-private:
+public:
     //actual Prim's aglorithm 
     std::vector<std::vector<int>> runPrimAlgorithm(Graph& graph, int start, 
                                                  std::vector<int>& distance, 
@@ -70,7 +70,7 @@ private:
         
         // Initialize distances to infinity - basically like dijkstras 
         for (int i = 0; i < k; i++) {
-            distance[i] = INFINITY;
+            distance[i] = INF;
         }
         distance[start] = 0;  // Start vertex has distance 0 to itself
         
@@ -102,7 +102,7 @@ private:
             
             graph.setValue(currVertex, VISITED);  // Mark as visited
             
-            if (distance[currVertex] == INFINITY) {
+            if (distance[currVertex] == INF) {
                 return MSTedges;
             }
             
