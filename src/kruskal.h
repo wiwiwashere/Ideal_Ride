@@ -8,7 +8,7 @@
 
 class kruskal {
   private:
-    int graph_weight;  // holds the total weight of the mst
+    int graph_weight = 0;  // holds the total weight of the mst
 
     struct DSU {
         std::vector<int> p, r;
@@ -73,23 +73,15 @@ class kruskal {
         return mst;
     }
 
-    // assists in making a real path using DFS
-    std::vector<int> getMSTTraversalOrder(const std::vector<std::vector<int>>& mstEdges, int nodeCount, int start) {
-        // Convert edge list to adjacency list
-        std::vector<std::vector<int>> adjList(nodeCount);
-        for (const auto& edge : mstEdges) {
-            int u = edge[0];
-            int v = edge[1];
-            adjList[u].push_back(v);
-            adjList[v].push_back(u);  // Undirected graph - this si okay
-        }
-
-        std::vector<bool> visited(nodeCount, false);
-        std::vector<int> order; //for DFS
-
-        dfsOrder(start, visited, adjList, order);
+    // call: auto order = getMSTTraversalOrder(mst, startRide);
+    std::vector<int> getMSTTraversalOrder(const std::vector<std::vector<int>>& adj, int start)
+    {
+        std::vector<bool> vis(adj.size(), false);
+        std::vector<int> order;
+        dfsOrder(start, vis, adj, order);
         return order;
     }
+
 
     // runs a dfs traversal on the mst
     void dfsOrder(int u, std::vector<bool>& visited, const std::vector<std::vector<int>>& mst, std::vector<int>& order) {
