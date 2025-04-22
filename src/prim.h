@@ -79,6 +79,7 @@ public:
         for (int i = 0; i < k; i++) {  // For each vertex
             if (distanceHeap.empty()) {
                 std::cout << "Heap empty" << std::endl;
+                std::cout << "If you selected Random as your park choice, this is expected to happened because the OST coordinate of the ride is auto-generated and the walking time needed between 2 rides will most certainly be greater than the maximum limit of integer type.\n";
                 return MSTedges;
             }
             
@@ -87,7 +88,7 @@ public:
             distanceHeap.pop();
             currVertex = minDist.vertex;
             
-            std::cout << "Curr Min distance: " << minDist.distance << " Vertex: " << currVertex << std::endl;
+            //std::cout << "Curr Min distance: " << minDist.distance << " Vertex: " << currVertex << std::endl;
             
             // Skip vertices that have already been visited
             while (graph.getValue(currVertex) == VISITED) {
