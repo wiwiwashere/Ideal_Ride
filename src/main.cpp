@@ -60,7 +60,7 @@ int main() {
         selections.push_back(stoi(x));
     }
 
-    std::cout << "\nYou selected: \n";
+    std::cout << "\nYou selected:\n";
     for (auto ri : selections)
     {
         std::cout << ride[ri-1].name << std::endl;
