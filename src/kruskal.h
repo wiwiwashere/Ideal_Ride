@@ -8,6 +8,7 @@
 
 class kruskal {
   private:
+    int graph_weight;
     struct DSU {
         std::vector<int> p, r;
 
@@ -31,6 +32,10 @@ class kruskal {
     };
 
   public:
+    int getWeight()
+    {
+        return graph_weight;
+    }
     // kruskal’s MST on adjacency matrix
     std::vector<std::vector<int>> runKruskalAlgorithm(const std::vector<std::vector<int>>& distances, int startRide) {
         int n = static_cast<int>(distances.size());
@@ -53,18 +58,17 @@ class kruskal {
             });
 
         // build MST using Kruskal's algorithm
-        int totalWeight = 0;
         std::vector<std::vector<int>> mst(n);
         for (const auto& [u, v, weight] : edges) {
             if (dsu.unite(u, v)) {
                 mst[u].push_back(v);
                 mst[v].push_back(u);
-                totalWeight += weight;
+                graph_weight += weight;
             }
         }
 
         return mst;
     }
-}
+};
 
 #endif //KRUSKAL_H

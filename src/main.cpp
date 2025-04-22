@@ -7,6 +7,7 @@
 #include <limits>
 #include <cstdlib>
 #include "prim.h"
+#include "kruskal.h"
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -106,7 +107,7 @@ int main() {
 
     std::vector<int> D(adjMatrix.size()); // Distance array -- num of nodes basicallt will eaul num of rides that user engtered
     std::vector<int> parent(adjMatrix.size()); // Predecessor array
-    std::vector<std::vector<int>> mstEdges =  prim.runPrimAlgorithm(universal, startVertex, D, parent); //g here has to be the selection grpah i made above
+    std::vector<std::vector<int>> mstEdges_P =  prim.runPrimAlgorithm(universal, startVertex, D, parent); //g here has to be the selection grpah i made above
 
     //print ride to ride distances
     // std::cout << "\nMinimum Spanning Tree:" << std::endl;
@@ -114,7 +115,7 @@ int main() {
     // for (int i = 0; i < adjMatrix.size(); i++) {
     //     if (i != startVertex && D[i] != INFINITY) {
     //         std::cout << "Edge: " << parent[i] << " -> " << i << " Weight: " << D[i] << std::endl;
-    //     }
+    //     }s
     //     lastVertex = i;
     // }
 
@@ -126,22 +127,34 @@ int main() {
         }
     }
 
-    if (mstEdges.size() != 0)
+    if (mstEdges_P.size() != 0)
     {
         std::cout << totalWeight << " mins (not including wait time)" << std::endl;
     }
     else {std::cout << "Not available\n\n";}
 
-    std::vector<int> correctPathOrder = prim.getMSTTraversalOrder(mstEdges, universal.getNodeCount(), 0);
+    std::vector<int> correctPathOrder = prim.getMSTTraversalOrder(mstEdges_P, universal.getNodeCount(), 0);
 
     std::cout << "Prim's traversal order: " << std::endl;
-    if (mstEdges.size() != 0)
+    if (mstEdges_P.size() != 0)
     {
         for (int idx: correctPathOrder)
         {
             std::cout << " - " << sel[idx].name << std::endl;
         }
     }else {std::cout << "Not available\n\n";}
+
+    kruskal krusal;
+
+    std::vector<std::vector<int>> mstEdges_K = krusal.runKruskalAlgorithm(adjMatrix, 0);
+
+    std::cout << "\nTotal trip distance given by Kruskal's: ";
+
+    if (mstEdges_K.size() != 0)
+    {
+        std::cout << krusal.getWeight() << " mins (not including wait time)" << std::endl;
+    }
+    else {std::cout << "Not available\n\n";}
 
 
     std::cout << "\n\nTotal walking distance + wait times optimized!\n";
