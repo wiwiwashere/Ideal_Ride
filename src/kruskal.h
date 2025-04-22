@@ -8,7 +8,8 @@
 
 class kruskal {
   private:
-    int graph_weight;
+    int graph_weight;  // holds the total weight of the mst
+
     struct DSU {
         std::vector<int> p, r;
 
@@ -32,10 +33,12 @@ class kruskal {
     };
 
   public:
+    // returns the total weight of mst
     int getWeight()
     {
         return graph_weight;
     }
+
     // kruskal’s MST on adjacency matrix
     std::vector<std::vector<int>> runKruskalAlgorithm(const std::vector<std::vector<int>>& distances, int startRide) {
         int n = static_cast<int>(distances.size());
@@ -68,6 +71,40 @@ class kruskal {
         }
 
         return mst;
+    }
+
+    // assists in making a real path using DFS
+    std::vector<int> getMSTTraversalOrder(const std::vector<std::vector<int>>& mstEdges, int nodeCount, int start) {
+        // Convert edge list to adjacency list
+        std::vector<std::vector<int>> adjList(nodeCount);
+        for (const auto& edge : mstEdges) {
+            int u = edge[0];
+            int v = edge[1];
+            adjList[u].push_back(v);
+            adjList[v].push_back(u);  // Undirected graph - this si okay
+        }
+
+        std::vector<bool> visited(nodeCount, false);
+        std::vector<int> order; //for DFS
+
+        dfsOrder(start, visited, adjList, order);
+        return order;
+    }
+
+    // runs a dfs traversal on the mst
+    void dfsOrder(int u, std::vector<bool>& visited, const std::vector<std::vector<int>>& mst, std::vector<int>& order) {
+        // set the current node to visited
+        visited[u] = true;
+
+        // add current node to path order
+        order.push_back(u);
+
+        // visit all unvisited neighbors
+        for (int v : mst[u]) {
+            if (!visited[v]) {
+                dfsOrder(v, visited, mst, order);
+            }
+        }
     }
 };
 

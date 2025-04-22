@@ -156,8 +156,18 @@ int main() {
     }
     else {std::cout << "Not available\n\n";}
 
+    std::cout << "\n\nTotal walking distance + wait times optimized!\n"; // idk where you want this
 
-    std::cout << "\n\nTotal walking distance + wait times optimized!\n";
+    std::vector<int> kruskalCorrectPathOrder = krusal.getMSTTraversalOrder(mstEdges_P, universal.getNodeCount(), 0);
+
+    std::cout << "Kruskal's traversal order: " << std::endl;
+    if (mstEdges_K.size() != 0)
+    {
+        for (int idx: kruskalCorrectPathOrder)
+        {
+            std::cout << " - " << sel[idx].name << std::endl;
+        }
+    }else {std::cout << "Not available\n\n";}
 
 
     return 0;
