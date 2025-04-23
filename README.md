@@ -9,7 +9,7 @@ It also includes a Python script to generate a synthetic dataset of 100,000 “r
 ### Installing dependencies
 
 1. nlohmann/json
-option 1 : Package: (MSYS2) pacman -S mingw-w64-x86_64-nlohmann-json
+<br> option 1 : Package: (MSYS2) pacman -S mingw-w64-x86_64-nlohmann-json </br>
 option 2 : Download the single header
   Go to https://github.com/nlohmann/json/releases/latest
   Save json.hpp into include/nlohmann/json.hpp in this repo
