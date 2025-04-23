@@ -11,15 +11,15 @@ It also includes a Python script to generate a synthetic dataset of 100,000 “r
 1. nlohmann/json
 <br> option 1 : Package: (MSYS2) pacman -S mingw-w64-x86_64-nlohmann-json </br>
 option 2 : Download the single header
-  Go to https://github.com/nlohmann/json/releases/latest
-  Save json.hpp into include/nlohmann/json.hpp in this repo
-  CMake will automatically pick it up if you add include/ to your include paths
+  <br>Go to https://github.com/nlohmann/json/releases/latest
+  <br>Save json.hpp into include/nlohmann/json.hpp in this repo
+  <br>CMake will automatically pick it up if you add include/ to your include paths
 
 2. libcurl
-MSYS2: installed above via pacman -S mingw-w64-x86_64-curl
-Other platforms: install via your package manager, e.g.
-  Ubuntu: sudo apt install libcurl4-openssl-dev
-  macOS (Homebrew): brew install curl
+<br>MSYS2: installed above via pacman -S mingw-w64-x86_64-curl
+<br>Other platforms: install via your package manager, e.g.
+  <br>Ubuntu: sudo apt install libcurl4-openssl-dev
+  <br>macOS (Homebrew): brew install curl
 
 ### Building C++ Backend
 ```bash
@@ -35,7 +35,7 @@ cmake --build . -- -j$(nproc)
 
 ### Generate a Large-Scale Dataset (Optional)
 If you need ≥100 000 data points:
-  change directory to the directory where this project is located in your computer 
+  <br>change directory to the directory where this project is located in your computer 
 ```bash
 py generate_random.py
 ```
@@ -43,7 +43,7 @@ It should create a file named "random_rides_100000.csv" in the same directory an
 
 ### Running 
 1. Prepare your CSV in the same folder as your executable
-  one way you could do this is drag the "Rides.csv" inside a sub-directory called "data" and drag it to the same folder as your executable
+  <br>one way you could do this is drag the "Rides.csv" inside a sub-directory called "data" and drag it to the same folder as your executable
 2. Run
 ```bash
 ./ride_planner
